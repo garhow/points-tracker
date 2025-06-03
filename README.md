@@ -5,10 +5,10 @@ This is a GNOME Shell extension to track your points in the Summer of 2025 GNOME
 ![screenshot](https://github.com/user-attachments/assets/ab79293d-05e4-404e-9d94-7f03022e71cd)
 
 ## Installation
-1. Download the latest [extension bundle](https://github.com/garhow/points-tracker/releases/download/v0.1.0/pointstracker@garhow.github.com.zip).
-2. Open a terminal and run `gnome-extensions install pointstracker@garhow.github.com.zip`.
-3. Enable the extension by running `gnome-extensions enable pointstracker@garhow.github.com`.
-4. Profit.
+1. Download the latest [extension bundle](https://github.com/garhow/points-tracker/releases/download/v0.1.1/pointstracker@garhow.github.com.zip).
+3. Open a terminal, locate the file and run `gnome-extensions install pointstracker@garhow.github.com.zip`.
+4. Enable the extension by running `gnome-extensions enable pointstracker@garhow.github.com`.
+5. Profit.
 
 ## Usage
 Upon installation, the extension will default to an empty username.
