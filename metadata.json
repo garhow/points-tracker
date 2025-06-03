@@ -1,0 +1,9 @@
+{
+  "name": "Points Tracker for \"Summer of GNOME OS\"",
+  "description": "Keep track of your points for this summer's GNOME OS daily driving challenge",
+  "uuid": "pointstracker@garhow.github.com",
+  "shell-version": [
+    "48"
+  ],
+  "settings-schema": "org.gnome.shell.extensions.pointstracker"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.pointstracker" path="/org/gnome/shell/extensions/pointstracker/">
+    <key name="contributor-name" type="s">
+	    <default>""</default>
+	    <summary>Contributor Name</summary>
+	    <description>Your name on the list</description>
+    </key>
+    <key name="show-ranking" type="b">
+	    <default>true</default>
+	    <summary>Show your ranking</summary>
+    </key>
+  </schema>
+</schemalist>
