@@ -6,9 +6,9 @@
 	    <summary>Contributor Name</summary>
 	    <description>Your name on the list</description>
     </key>
-    <key name="show-ranking" type="b">
-	    <default>true</default>
-	    <summary>Show your ranking</summary>
+    <key name="show-highscore" type="b">
+	    <default>false</default>
+	    <summary>Display the high score next to your score</summary>
     </key>
   </schema>
 </schemalist>

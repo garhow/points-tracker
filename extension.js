@@ -59,7 +59,7 @@ function read_https_file(url) {
 	}
 }
 
-function getScore(participant) {
+function getLines() {
 	let hedgedocMarkdown = read_https_file("https://pad.gnome.org/summer-of-gnomeos/download");
 	let tableContent = extractTable(hedgedocMarkdown);
 
@@ -67,7 +67,11 @@ function getScore(participant) {
 	const lines = tableContent.split('\n');
 	lines.splice(0, 2);
 
-	for (let line of lines) {
+	return lines;
+}
+
+function getScore(participant) {
+	for (let line of getLines()) {
 		const columns = line.split('|').map(col => col.trim());
 		const name_column = columns[1];
 		const score_column = columns[columns.length - 2];
@@ -79,17 +83,39 @@ function getScore(participant) {
 	return null;
 }
 
-function refresh(label, participant) {
-	const score = getScore(participant);
+function getHighScore() {
+	let scores = []
+	for (let line of getLines()) {
+		const columns = line.split('|').map(col => col.trim());
+		const score_column = columns[columns.length - 2];
+		if (!isNaN(score_column)) {
+			scores.push(parseInt(score_column));
+		}
+	}
+
+	// Sort scores in descending order
+	scores.sort((x, y) => y - x);
+
+	return scores[0];
+}
+
+function refresh(label, settings) {
+	const score = getScore(settings.get_string('contributor-name'));
+	const highScore = getHighScore();
 
 	var message;
+
+	if (settings.get_boolean('show-highscore')) {
+		
+	}
+
 	if (score) {
-		var plural = "s";
-		if (score == 1) { plural = ""; }
-		message = score //+ " point" + plural;
+		let optional_highscore = settings.get_boolean('show-highscore') ? "/" + highScore : ""
+		message = score + optional_highscore;
 	} else {
 		message = "?";
 	}
+
 	label.text = message;
 }
 
@@ -102,7 +128,7 @@ export default class IndicatorExampleExtension extends Extension {
 		// Create layout
 		const box = new St.BoxLayout({
 			visible: true,
-			min_width: 72,
+			min_width: 80,
 			y_align: Clutter.ActorAlign.CENTER,
 		});
 
@@ -123,7 +149,7 @@ export default class IndicatorExampleExtension extends Extension {
 		// Add the indicator to the panel
 		Main.panel.addToStatusArea(this.uuid, this._indicator);
 
-		refresh(label, this._settings.get_string('contributor-name'));
+		refresh(label, this._settings);
 
 		// Add menu items to open the web page and the preferences window
 		this._indicator.menu.addAction(_("View Website"), () => {
@@ -140,14 +166,18 @@ export default class IndicatorExampleExtension extends Extension {
 
 		// Watch for changes in settings
 		this._settings.connect("changed::contributor-name", (settings, key) => {
-			refresh(label, settings.get_string(key))
+			refresh(label, settings)
+		});
+
+		this._settings.connect("changed::show-highscore", (settings, key) => {
+			refresh(label, settings)
 		});
 
 
 		// Refresh stats every two minutes
 		function refreshLoop(settings) {
 			setTimeout(function() {
-				refresh(label, settings.get_string("contributor-name"));
+				refresh(label, settings);
 				refreshLoop(settings);
 			}, 120*1000);
 		}

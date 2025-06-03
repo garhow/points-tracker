@@ -24,17 +24,17 @@ export default class Preferences extends ExtensionPreferences {
             title: _('Contributor Name'),
         });
 
-        // const showRankingInput = new Adw.SwitchRow({
-        //    title: _('Show Ranking'),
-        //    subtitle: _('Whether to show the ranking'),
-        // });
+        const showHighScoreInput = new Adw.SwitchRow({
+           title: _('Show High Score'),
+           subtitle: _('Whether to show the high score next to your score'),
+        });
 
         group.add(contributorNameInput);
-        // group.add(showRankingInput);
+        group.add(showHighScoreInput);
 
         // Create a settings object and bind the row to the `show-indicator` key
         window._settings = this.getSettings();
         window._settings.bind('contributor-name', contributorNameInput, 'text', Gio.SettingsBindFlags.DEFAULT);
-        // window._settings.bind('show-ranking', showRankingInput, 'active', Gio.SettingsBindFlags.DEFAULT);
+        window._settings.bind('show-highscore', showHighScoreInput, 'active', Gio.SettingsBindFlags.DEFAULT);
     }
 }
