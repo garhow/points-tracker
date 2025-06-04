@@ -34,34 +34,44 @@ import * as Main from "resource:///org/gnome/shell/ui/main.js";
 function extractTable(markdownContent) {
 	const tableRegex = /(\|[^\n]+(?:\n\|[^\n]+)*)/g;
 
-	const tableMatch = markdownContent.match(tableRegex);
-
-	if (tableMatch) {
-		return tableMatch[0];
-	} else {
-		return null;
+	if (markdownContent != null) {
+		const tableMatch = markdownContent.match(tableRegex);
+	
+		if (tableMatch) {
+			return tableMatch[0];
+		}
 	}
+
+	return null;
 }
 
 function read_https_file(url) {
-	let file = Gio.File.new_for_uri(url);
-
-	try {
-		let [ok, contents, etag] = file.load_contents(null);
-
-		if (ok) {
-			return new TextDecoder().decode(contents);
-		} else {
-			throw new Error("Failed to load file contents.");
+	let networkMonitor = Gio.NetworkMonitor.get_default();
+	if (networkMonitor.get_network_available()) {
+		let file = Gio.File.new_for_uri(url);
+	
+		try {
+			let [ok, contents, etag] = file.load_contents(null);
+	
+			if (ok) {
+				return new TextDecoder().decode(contents);
+			}
+		} catch (e) {
+			console.log(e.message);
 		}
-	} catch (e) {
-		console.log(e.message);
+	} else {
+		console.log("Connectivity lost! Points tracker will not function.");
 	}
+	return null;
 }
 
 function getLines() {
 	let hedgedocMarkdown = read_https_file("https://pad.gnome.org/summer-of-gnomeos/download");
 	let tableContent = extractTable(hedgedocMarkdown);
+
+	if (tableContent == null) {
+		return null;
+	}
 
 	// Remove the header from the table
 	const lines = tableContent.split('\n');
@@ -71,12 +81,15 @@ function getLines() {
 }
 
 function getScore(participant) {
-	for (let line of getLines()) {
-		const columns = line.split('|').map(col => col.trim());
-		const name_column = columns[1];
-		const score_column = columns[columns.length - 2];
-		if (name_column == participant) {
-			return score_column;
+	let lines = getLines();
+	if (lines != null) {
+		for (let line of lines) {
+			const columns = line.split('|').map(col => col.trim());
+			const name_column = columns[1];
+			const score_column = columns[columns.length - 2];
+			if (name_column == participant) {
+				return score_column;
+			}
 		}
 	}
 
@@ -84,30 +97,33 @@ function getScore(participant) {
 }
 
 function getHighScore() {
-	let scores = []
-	for (let line of getLines()) {
-		const columns = line.split('|').map(col => col.trim());
-		const score_column = columns[columns.length - 2];
-		if (!isNaN(score_column)) {
-			scores.push(parseInt(score_column));
+	let scores = [];
+	let lines = getLines();
+	if (lines != null) {
+		for (let line of lines) {
+			const columns = line.split('|').map(col => col.trim());
+			const score_column = columns[columns.length - 2];
+			if (!isNaN(score_column)) {
+				scores.push(parseInt(score_column));
+			}
 		}
+
+		// Sort scores in descending order
+		scores.sort((x, y) => y - x);
+
+		return scores[0];
 	}
 
-	// Sort scores in descending order
-	scores.sort((x, y) => y - x);
-
-	return scores[0];
+	return null;
 }
 
 function refresh(label, settings) {
+	console.log("Points tracker is refreshing...");
+
 	const score = getScore(settings.get_string('contributor-name'));
 	const highScore = getHighScore();
 
 	var message;
-
-	if (settings.get_boolean('show-highscore')) {
-		
-	}
 
 	if (score) {
 		let optional_highscore = settings.get_boolean('show-highscore') ? "/" + highScore : ""
@@ -117,6 +133,8 @@ function refresh(label, settings) {
 	}
 
 	label.text = message;
+
+	console.log("Point tracker refresh complete");
 }
 
 export default class IndicatorExampleExtension extends Extension {
@@ -151,7 +169,11 @@ export default class IndicatorExampleExtension extends Extension {
 
 		refresh(label, this._settings);
 
-		// Add menu items to open the web page and the preferences window
+		// Add menu items to refresh, open the web page and the preferences window
+		this._indicator.menu.addAction(_("Refresh"), () =>
+			refresh(label, this._settings),
+		);
+
 		this._indicator.menu.addAction(_("View Website"), () => {
 			const url = "https://pad.gnome.org/s/summer-of-gnomeos";
 			let appInfo = Gio.AppInfo.create_from_commandline("xdg-open " + url, null, null);
@@ -174,12 +196,12 @@ export default class IndicatorExampleExtension extends Extension {
 		});
 
 
-		// Refresh stats every two minutes
+		// Refresh stats every thirty minutes
 		function refreshLoop(settings) {
 			setTimeout(function() {
 				refresh(label, settings);
 				refreshLoop(settings);
-			}, 120*1000);
+			}, 30*60*1000);
 		}
 
 		refreshLoop(this._settings);
