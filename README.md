@@ -10,7 +10,7 @@ This was inspired by a [comment](https://www.reddit.com/r/gnome/comments/1l0yzvo
 > This is never gonna take off without a shell extension that displays the score.
 
 ## Installation
-1. Download the latest [extension bundle](https://github.com/garhow/points-tracker/releases/download/v0.1.1/pointstracker@garhow.github.com.zip).
+1. Download the latest [extension bundle](https://github.com/garhow/points-tracker/releases/download/v0.1.2/pointstracker@garhow.github.com.zip).
 3. Open a terminal, locate the file and run `gnome-extensions install pointstracker@garhow.github.com.zip`.
 4. Log out of your GNOME session and log back in.
 5. Enable the extension by running `gnome-extensions enable pointstracker@garhow.github.com`.
